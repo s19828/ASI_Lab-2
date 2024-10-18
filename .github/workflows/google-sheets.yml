@@ -1,0 +1,52 @@
+ #.github/workflows/google-sheets.yml
+
+name: CI/CD Pipeline for data editing via Google Sheets
+# Wykonuj akcje przy każdym pushu do gałęzi main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-and-edit-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Krok 1: Checkout repozytorium
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Krok 2: Zklonuj repozytorium z kodem do generowania danych
+      - name: Clone external repository
+        run: git clone https://github.com/PJATK-ASI-2024/Lab2---Obr-bka-danych  
+
+      # Krok 3: Zainstaluj Python i zależności
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Krok 4: Uruchom skrypt generator_danych.py
+      - name: Run script to generate CSV
+        run: |
+          cd PJATK-ASI-2024/Lab2---Obr-bka-danych
+          python3 generator_danych.py -s 19828
+
+      # Krok 5: Wczytaj API do Google Sheets i zapisz zawartość pliku .csv
+      - name: Set up Google API key and upload .csv
+        env:
+          GOOGLE_API_KEY: ${{secrets.GOOGLE_API_KEY}}
+        run: | 
+          cd $GITHUB_WORKSPACE
+          python csv_uploader.py
+
+      # Krok 6: Uruchom  skrypt obrabiający dane
+      - name: Run script to edit data
+        run: | 
+          cd $GITHUB_WORKSPACE
+          python s19828.py
+          
+      # Krok 7: Wygeneruj raport
