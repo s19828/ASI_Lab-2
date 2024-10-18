@@ -18,7 +18,7 @@ jobs:
 
       # Krok 2: Zklonuj repozytorium z kodem do generowania danych
       - name: Clone external repository
-        run: git clone https://github.com/PJATK-ASI-2024/Lab2---Obr-bka-danych  
+        run: git clone https://github.com/PJATK-ASI-2024/Lab2---Obr-bka-danych.git  
 
       # Krok 3: Zainstaluj Python i zależności
       - name: Set up Python
@@ -27,7 +27,11 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: | 
+          cd $GITHUB_WORKSPACE
+          pip install -r requirements.txt
+          cd PJATK-ASI-2024/Lab2---Obr-bka-danych
+          pip install -r requirements.txt
 
       # Krok 4: Uruchom skrypt generator_danych.py
       - name: Run script to generate CSV
@@ -47,6 +51,6 @@ jobs:
       - name: Run script to edit data
         run: | 
           cd $GITHUB_WORKSPACE
-          python s19828.py
+          python data_editor.py
           
       # Krok 7: Wygeneruj raport
